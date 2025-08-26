@@ -1,0 +1,17 @@
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+    # Use a Parallels-ready CentOS Stream 9 box
+    config.vm.box = "generic/centos9s"
+
+    # Use Parallels shared folders instead of rsync
+    config.vm.synced_folder ".", "/vagrant", type: "parallels"
+
+    # Parallels provider settings
+    config.vm.provider :parallels do |prl|
+        prl.memory = 1024
+        prl.update_guest_tools = true
+    end
+
+    # Networking: rely on default NAT (no explicit config)
+end

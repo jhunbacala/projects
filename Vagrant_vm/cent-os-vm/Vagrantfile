@@ -1,0 +1,49 @@
+# Vagrantfile for CentOS on Parallels (macOS compatible)
+
+require 'rbconfig'
+
+Vagrant.configure('2') do |config|
+  # Choose a CentOS box compatible with host architecture
+  arch = RbConfig::CONFIG['host_cpu']
+  box_name = ENV['BOX_NAME']
+  box_version = ENV['BOX_VERSION'] || '>= 4.2.0'
+  if box_name.nil? || box_name.strip.empty?
+    if arch =~ /(arm|aarch64)/i
+      # Apple Silicon: default to CentOS Stream 9 generic box (provider must be Parallels)
+      box_name = 'generic/centos9s'
+    else
+      # Intel Macs: stable CentOS 7 generic box
+      box_name = 'generic/centos7'
+    end
+  end
+  config.vm.box = box_name
+  config.vm.box_version = box_version
+  puts "[vagrant] host arch=#{arch} box=#{box_name} version=#{box_version}"
+
+  # Basic VM identity
+  config.vm.hostname = 'centos-vm'
+
+  # Networking
+  config.vm.network 'private_network', type: 'dhcp'
+
+  # Faster and predictable sync for cross-OS setups
+  config.vm.synced_folder '.', '/vagrant', type: 'rsync', rsync__auto: true, rsync__exclude: ['.git/', 'node_modules/']
+
+  # Parallels provider configuration
+  config.vm.provider :parallels do |prl, override|
+    override.vm.box_check_update = true
+    prl.name   = 'centos-parallels'
+    prl.memory = 2048
+    prl.cpus   = 2
+  end
+
+  # Minimal provisioning to ensure package metadata is current
+  config.vm.provision 'shell', inline: <<-SHELL
+    set -euo pipefail
+    if command -v dnf >/dev/null 2>&1; then
+      sudo dnf -y makecache || true
+    elif command -v yum >/dev/null 2>&1; then
+      sudo yum -y makecache || true
+    fi
+  SHELL
+end
