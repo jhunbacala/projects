@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  puppet:
+    image: puppet/puppetserver:latest
+    hostname: puppet
+    container_name: puppet
+    ports:
+      - "8140:8140"
+    environment:
+      - PUPPETSERVER_JAVA_ARGS=-Xms512m -Xmx512m
+    volumes:
+      - puppet-conf:/etc/puppetlabs
+      - puppet-data:/opt/puppetlabs/server/data/puppetserver
+      - puppet-logs:/var/log/puppetlabs/puppetserver
+      - ./code:/etc/puppetlabs/code/environments/production:ro
+      # Comment out the next line if you prefer manual cert signing
+      - ./puppet/autosign.conf:/etc/puppetlabs/puppet/autosign.conf:ro
+
+  agent1:
+    image: puppet/puppet-agent:latest
+    hostname: agent1
+    domainname: example.test
+    container_name: puppet-agent1
+    depends_on:
+      - puppet
+    command: >
+      sh -lc "
+        puppet config set server puppet --section main &&
+        puppet config set certname agent1.example.test --section main &&
+        puppet agent --no-daemonize --verbose --waitforcert 120
+      "
+
+  agent2:
+    image: puppet/puppet-agent:latest
+    hostname: agent2
+    domainname: example.test
+    container_name: puppet-agent2
+    depends_on:
+      - puppet
+    command: >
+      sh -lc "
+        puppet config set server puppet --section main &&
+        puppet config set certname agent2.example.test --section main &&
+        puppet agent --no-daemonize --verbose --waitforcert 120
+      "
+
+volumes:
+  puppet-conf:
+  puppet-data:
+  puppet-logs:
+
