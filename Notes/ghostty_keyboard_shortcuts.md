@@ -29,7 +29,7 @@ Default keyboard shortcuts for Ghostty terminal emulator. Platform-specific diff
 | Action | Windows/Linux | macOS |
 |--------|--------------|-------|
 | New split (right) | Ctrl+Shift+O | Cmd+D |
-| New split (down) | Ctrl+Shift+E | Cmd+Shift+D |
+| New split (down) | Ctrl+Shift+E | Cmd+Shift+E |
 | Focus previous split | Ctrl+Super+[ | Cmd+[ |
 | Focus next split | Ctrl+Super+] | Cmd+] |
 | Focus split up | Ctrl+Alt+Up | Cmd+Option+Up |
