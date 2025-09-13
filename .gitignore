@@ -42,3 +42,8 @@ terraform.rc
 
 .DS_Store
 ._*%
+
+*.pyc
+__pycache__/
+credentials.json
+token.json
