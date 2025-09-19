@@ -10,5 +10,6 @@ spec:
       image: dockersamples/examplevotingapp_result
       ports:
         - containerPort: 80
-          env:
-            name: result
+      env:
+        - name: POSTGRES_HOST
+          value: "db-service"
