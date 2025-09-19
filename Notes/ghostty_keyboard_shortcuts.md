@@ -92,3 +92,7 @@ Default keyboard shortcuts for Ghostty terminal emulator. Platform-specific diff
 | Write scrollback to file (open) | Ctrl+Shift+Alt+J | Cmd+Shift+Option+J |
 
 Note: These are the default keybindings. All keybindings can be customized through the configuration file using the `keybind` option.
+
+
+## Reload Configuration
+`Cmd+Shift+,`
