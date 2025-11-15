@@ -1,0 +1,33 @@
+Vagrant.configure("2") do |config|
+  config.vm.define "master" do |master|
+    master.vm.box = "bento/centos-7"
+    master.vm.network "private_network", ip: "192.168.50.10"
+    master.vm.provider "parallels" do |p|
+      p.memory = "1024"
+      p.cpus = "1"
+    end
+    master.vm.provision "shell", inline: <<-SHELL
+      yum install -y https://repo.saltstack.com/py3/redhat/salt-py3-repo-latest.el7.noarch.rpm
+      yum clean expire_all
+      yum install -y salt-master
+      systemctl enable salt-master
+      systemctl start salt-master
+    SHELL
+  end
+
+  config.vm.define "minion" do |minion|
+    minion.vm.box = "bento/ubuntu-14.04"
+    minion.vm.network "private_network", ip: "192.168.50.11"
+    minion.vm.provider "parallels" do |p|
+      p.memory = "1024"
+      p.cpus = "1"
+    end
+    minion.vm.provision "shell", inline: <<-SHELL
+      apt-get update
+      apt-get install -y salt-minion
+      echo "master: 192.168.50.10" > /etc/salt/minion.d/master.conf
+      systemctl enable salt-minion
+      systemctl start salt-minion
+    SHELL
+  end
+end
