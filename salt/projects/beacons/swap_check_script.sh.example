@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# This script checks the swap usage and prints a message if it exceeds a threshold.
+# It is designed to be used with the Salt 'sh' beacon.
+
+# The threshold can be passed as the first argument.
+THRESHOLD=${1:-70}
+
+OS=$(uname)
+
+if [ "$OS" = "Linux" ]; then
+    # On Linux, use the 'free' command.
+    # The output of 'free' can vary. We'll try to handle both old and new formats.
+    if free | head -n 1 | grep -q "total"; then
+        # New 'free' format
+        SWAP_LINE=$(free | grep Swap)
+        SWAP_TOTAL=$(echo "$SWAP_LINE" | awk '{print $2}')
+        SWAP_USED=$(echo "$SWAP_LINE" | awk '{print $3}')
+    else
+        # Old 'free' format
+        SWAP_LINE=$(free | grep Swap)
+        SWAP_TOTAL=$(echo "$SWAP_LINE" | awk '{print $2}')
+        SWAP_USED=$(echo "$SWAP_LINE" | awk '{print $3}')
+    fi
+
+    if [ "$SWAP_TOTAL" -eq 0 ]; then
+        # No swap, nothing to do.
+        exit 0
+    fi
+
+    SWAP_USAGE=$(echo "scale=2; $SWAP_USED / $SWAP_TOTAL * 100" | bc | cut -d. -f1)
+
+elif [ "$OS" = "AIX" ]; then
+    # On AIX, use the 'lsps' command.
+    SWAP_USAGE=$(lsps -s | tail -n 1 | awk '{print $4}' | sed 's/%//')
+else
+    # Unsupported OS
+    exit 1
+fi
+
+if [ "$SWAP_USAGE" -gt "$THRESHOLD" ]; then
+    echo "SWAP HIGH: $SWAP_USAGE%"
+fi

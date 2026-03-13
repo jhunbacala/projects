@@ -1,0 +1,18 @@
+
+# This is an example of a reactor file.
+# You should place this file in your Salt master's reactor configuration directory
+# (e.g., /srv/salt/reactor/swap_cleanup.sls)
+
+# This reactor is triggered when the swap_usage beacon fires.
+# It executes the 'cmd.run' function on the minion that fired the beacon
+# to clean the swap.
+
+{% set minion_id = data['id'] %}
+{% set swap_usage = data['data']['swap_usage'] %}
+
+"swap_cleanup_{{ minion_id }}":
+  local.cmd.run:
+    - tgt: {{ minion_id }}
+    - arg:
+      - "swapoff -a && swapon -a"
+      - "echo 'Swap cleanup performed on {{ minion_id }} due to high swap usage: {{ swap_usage }}' | wall"

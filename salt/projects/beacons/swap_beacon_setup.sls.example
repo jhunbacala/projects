@@ -1,0 +1,36 @@
+
+# This is an example Salt State (SLS) file to deploy the swap usage beacon.
+# You should place this file in your Salt master's state tree
+# (e.g., /srv/salt/top.sls would reference this, or include it in another state).
+
+# Ensure your script and beacon config are in the Salt file server, for example:
+# /srv/salt/scripts/swap_check_script.sh
+# /srv/salt/minion_config/swap_beacon.conf
+
+deploy_swap_check_script:
+  file.managed:
+    - name: /usr/local/bin/swap_check_script.sh  # Destination path on minion
+    - source: salt://scripts/swap_check_script.sh # Source path on master
+    - mode: 755
+    - user: root
+    - group: root
+
+deploy_swap_beacon_config:
+  file.managed:
+    - name: /etc/salt/minion.d/swap_beacon.conf # Destination path on minion
+    - source: salt://minion_config/swap_beacon.conf # Source path on master
+    - user: root
+    - group: root
+    - mode: 644
+  require:
+    - file: deploy_swap_check_script # Ensure script is deployed first
+
+restart_salt_minion_for_beacon:
+  service.running:
+    - name: salt-minion # Or whatever your minion service is called (e.g., salt-minion)
+    - enable: True
+    - restart: True
+    - watch:
+      - file: deploy_swap_beacon_config # Restart if beacon config changes
+    - onchanges:
+      - file: deploy_swap_beacon_config # Only restart if beacon config changes

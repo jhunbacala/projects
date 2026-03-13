@@ -1,0 +1,10 @@
+
+# This is an example of a beacon configuration file.
+# You should create a file like this in your Salt minion's configuration directory
+# (e.g., /etc/salt/minion.d/swap_beacon.conf)
+
+beacons:
+  swap_usage:
+    - beacon_module: sh
+    - command: /path/to/your/swap_check_script.sh 70
+    - interval: 120
