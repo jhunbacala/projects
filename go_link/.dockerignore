@@ -1,0 +1,16 @@
+# Git version control
+.git
+
+# Docker files
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Go build artifacts
+*.exe
+*.out
+go_link
+
+# OS-specific
+.DS_Store
+Thumbs.db

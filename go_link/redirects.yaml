@@ -1,0 +1,5 @@
+# Add your redirects here.
+# The server will automatically reload them when this file changes.
+/google: https://www.google.com
+/github: https://github.com/
+/docker: https://docs.docker.com/
